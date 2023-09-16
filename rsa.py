@@ -1,6 +1,7 @@
 import random
 import math
 
+
 def is_prime(n, k=5):
     if n <= 1:
         return False
@@ -31,11 +32,13 @@ def is_prime(n, k=5):
 
     return True
 
+
 def generate_random_prime(lower_limit, upper_limit):
     while True:
         candidate = random.randint(lower_limit, upper_limit)
         if is_prime(candidate):
             return candidate
+
 
 def modular_inverse(a, m):
     # Calculate the modular multiplicative inverse of a modulo m
@@ -45,13 +48,15 @@ def modular_inverse(a, m):
     else:
         return x % m
 
+
 def extended_gcd(a, b):
     if a == 0:
         return (b, 0, 1)
     else:
         g, x, y = extended_gcd(b % a, a)
         return (g, y - (b // a) * x, x)
-    
+
+
 def encryption_exponent(phi, n):
     e = None
     for i in range(2, phi):
@@ -62,9 +67,10 @@ def encryption_exponent(phi, n):
         return e
     raise Exception("there isn't any encryption exponent")
 
+
 def rsa_generator():
-    lower_limit = 2**100  
-    upper_limit = 2**101  
+    lower_limit = 2**1
+    upper_limit = 2**9
 
     p = generate_random_prime(lower_limit, upper_limit)
     q = generate_random_prime(lower_limit, upper_limit)
@@ -74,27 +80,45 @@ def rsa_generator():
     phi = (p - 1) * (q - 1)
 
     e = encryption_exponent(phi, n)
-    
+
     d = modular_inverse(e, phi)
-    
+
     public_key = (e, n)
     private_key = (d, n)
 
     return public_key, private_key
 
+
 def test_rsa():
     public_key, private_key = rsa_generator()
-    message = 123456789
+    message = 12
+    if isinstance(message, int):
+        encrypted_message = pow(message, public_key[0], public_key[1])
+        decrypted_message = pow(encrypted_message, private_key[0], private_key[1])
 
-    encrypted_message = pow(message, public_key[0], public_key[1])
-    decrypted_message = pow(encrypted_message, private_key[0], private_key[1])
+        # reverse test
+        signature = pow(message, private_key[0], private_key[1])
+        shown_signature = pow(signature, public_key[0], public_key[1])
 
-    # reverse test
-    signature = pow(message, private_key[0], private_key[1])
-    shown_signature = pow(signature, public_key[0], public_key[1])
+        assert message == shown_signature
+        assert message == decrypted_message
 
-    assert message == shown_signature
-    assert message == decrypted_message
+    string_message = "You can convert a list of bytes to a string in Python\
+          by using the bytes() constructor and then decoding it into \
+            a string using an appropriate character encoding. \
+                In your case, the list of bytes appears to represent ASCII values,\
+                      so you can use the chr() function to convert these values to characters and \
+                        then join them together to create a string. Here's how you can do it:"
+
+    if isinstance(string_message, str):
+        arr = string_message.encode()
+        enc_arr = [pow(i, public_key[0], public_key[1]) for i in arr]
+        _ = "".join(chr(byte) for byte in enc_arr)
+        dec_arr = [pow(i, private_key[0], private_key[1]) for i in enc_arr]
+        string_result = "".join(chr(byte) for byte in dec_arr)
+
+        assert string_result == string_message
+
 
 if __name__ == "__main__":
     test_rsa()
