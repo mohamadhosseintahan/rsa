@@ -37,7 +37,6 @@ def generate_random_prime(lower_limit, upper_limit):
         if is_prime(candidate):
             return candidate
 
-
 def modular_inverse(a, m):
     # Calculate the modular multiplicative inverse of a modulo m
     g, x, y = extended_gcd(a, m)
